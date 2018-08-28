@@ -11,23 +11,33 @@ import UIKit
 class Movie: NSObject {
     var title: String = ""
     var overview: String = ""
-    var vote_average: Float = 0.0
-    var release_date : Date = Date() // The movie DB format : "2017-09-05"
+    var voteAverage: Double = 0.0
+    var releaseDate : Date = Date() // The movie DB format : "2017-09-05"
     
     init (json : JSON) {
-        self.title = json["title"] as! String
-        self.overview = json["overview"] as! String
-        self.vote_average = json["vote_average"] as! Float
+        if let title = json["title"] as? String {
+            self.title = title
+        }
+        if let overview = json["overview"] as? String {
+            self.overview = overview
+        }
+        if let voteAverage = json["vote_average"] as? Double {
+            self.voteAverage = voteAverage
+        }
         
         // Get the date
-        let dateString = json["release_date"] as! String
-        let dateFormater = DateFormatter()
-        dateFormater.dateFormat = "yyyy-mm-dd"
-        self.release_date = dateFormater.date(from: dateString)!
+        if let dateString = json["release_date"] as? String {
+            let dateFormater = DateFormatter()
+            dateFormater.dateFormat = "yyyy-MM-dd"
+            dateFormater.timeZone = TimeZone(identifier: "GMT")
+            if let releaseDate = dateFormater.date(from: dateString) {
+                self.releaseDate = releaseDate
+            }
+        }
     }
     
     override var description: String {
-        return "\(title) - (\(vote_average)/10)"
+        return "\(title) - (\(voteAverage)/10) - \(releaseDate) - \(overview)"
     }
     
     static func movieList () -> [Movie] {
